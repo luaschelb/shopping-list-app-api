@@ -12,3 +12,10 @@ API created for use with the Shopping List APP.
     ```
     npm run start
     ```
+
+    or
+    ```
+    vercel dev
+    ```
+
+
