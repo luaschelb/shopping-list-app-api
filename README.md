@@ -6,6 +6,7 @@ API created for use with the Shopping List APP.
     ```
     TURSO_DATABASE_URL=
     TURSO_AUTH_TOKEN=
+    PORT=
     ```
 
 2. Run the server with:
