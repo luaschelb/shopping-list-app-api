@@ -11,12 +11,7 @@ API created for use with the Shopping List APP.
 
 2. Run the server with:
     ```
-    npm run start
-    ```
-
-    or
-    ```
-    vercel dev
+    npm run de
     ```
 
 

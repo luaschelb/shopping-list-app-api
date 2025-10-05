@@ -9,8 +9,6 @@
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "moduleResolution": "node16",
-    "rootDir": "./src",
-    "outDir": "./dist"
+    "moduleResolution": "node16"
   }
 }
