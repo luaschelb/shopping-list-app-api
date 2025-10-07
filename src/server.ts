@@ -1,7 +1,8 @@
 import { fastify } from "fastify";
 import { fastifyCors } from "@fastify/cors";
 import turso from "./db";
-require('dotenv').config()
+import 'dotenv/config'
+
 const port = process.env.PORT || 3000;
 const host = ("RENDER" in process.env) ? `0.0.0.0` : `localhost`;
 
@@ -30,10 +31,35 @@ app.get("/items", async (request, reply) => {
     }
 });
 
+interface postItemOpts {
+    name: string,
+    quantity: number
+}
+
+app.post<{Body: postItemOpts}>("/items", { schema: {
+    body: {
+        type: 'object',
+        required: ["name", "quantity"],
+        properties: {
+            name: {type: 'string'},
+            quantity: {type: 'number'}
+        }
+    }
+}} ,async (request, reply) => {
+    try {
+        const { name, quantity } = request.body
+        const itens = await turso.execute("INSERT INTO items (name, quantity) VALUES (?, ?)", [name, quantity]);
+        reply.status(201).send()
+    } catch (error) {
+        reply.status(500).send({ message: "Internal Server Error" });
+    }
+});
+
+
 app.put("/items/:id", async (request, reply) => {
     try {
         const itens = await turso.execute("SELECT * FROM items");
-        if(!itens.rowsAffected)
+        if(!itens.rows.length)
         {
             return reply.status(404).send({message: "No Item found"})
         }
