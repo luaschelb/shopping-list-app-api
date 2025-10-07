@@ -2,6 +2,8 @@ import { fastify } from "fastify";
 import { fastifyCors } from "@fastify/cors";
 import turso from "./db";
 require('dotenv').config()
+const port = process.env.PORT || 3000;
+const host = ("RENDER" in process.env) ? `0.0.0.0` : `localhost`;
 
 const app = fastify();
 
@@ -55,6 +57,9 @@ app.delete("/items/:id", async (request, reply) => {
     }
 })
 
-app.listen({ port: Number(process.env.PORT)}, () => {
-    console.log("Server is running on port " + Number(process.env.PORT));
-});
+app.listen({host: host, port: Number(port) }, function (err, address) {
+  if (err) {
+    app.log.error(err)
+    process.exit(1)
+  }
+})
