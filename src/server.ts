@@ -31,21 +31,26 @@ app.get("/items", async (request, reply) => {
     }
 });
 
-interface postItemOpts {
+interface ItemInterface {
     name: string,
     quantity: number
 }
 
-app.post<{Body: postItemOpts}>("/items", { schema: {
-    body: {
-        type: 'object',
-        required: ["name", "quantity"],
-        properties: {
-            name: {type: 'string'},
-            quantity: {type: 'number'}
+let ItemSchema = {
+    schema: {
+        body: {
+            type: 'object',
+            required: ["name", "quantity"],
+            properties: {
+                name: {type: 'string'},
+                quantity: {type: 'number'}
+            }
         }
     }
-}} ,async (request, reply) => {
+}
+
+
+app.post<{Body: ItemInterface}>("/items", ItemSchema ,async (request, reply) => {
     try {
         const { name, quantity } = request.body
         const itens = await turso.execute("INSERT INTO items (name, quantity) VALUES (?, ?)", [name, quantity]);
@@ -56,14 +61,17 @@ app.post<{Body: postItemOpts}>("/items", { schema: {
 });
 
 
-app.put("/items/:id", async (request, reply) => {
+app.put<{Body: ItemInterface}>("/items/:id", ItemSchema,async (request, reply) => {
     try {
-        const itens = await turso.execute("SELECT * FROM items");
+        const params = request.params as { id: number }
+        const { name, quantity } = request.body
+        const itens = await turso.execute("SELECT * FROM items where items.id = ?", [params.id]);
         if(!itens.rows.length)
         {
             return reply.status(404).send({message: "No Item found"})
         }
-        reply.send(itens.rows)
+        const update = await turso.execute("UPDATE items SET name=?, quantity=? WHERE items.id = ? ", [name, quantity, params.id])
+        reply.send()
     } catch (error) {
         reply.status(500).send({ message: "Internal Server Error" });
     }
