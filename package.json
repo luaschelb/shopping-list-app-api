@@ -4,7 +4,6 @@
   "description": "Fastify API for Shopping List App",
   "license": "ISC",
   "author": "",
-  "type": "module",
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
