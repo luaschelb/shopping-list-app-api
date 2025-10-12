@@ -1,5 +1,5 @@
 import { createClient } from "@libsql/client";
-require('dotenv').config()
+import 'dotenv/config'
 
 if(!process.env.TURSO_DATABASE_URL  || !process.env.TURSO_AUTH_TOKEN)
 {

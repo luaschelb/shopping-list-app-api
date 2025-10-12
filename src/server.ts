@@ -1,6 +1,6 @@
 import { fastify } from "fastify";
 import { fastifyCors } from "@fastify/cors";
-import turso from "./db";
+import turso from "./db.js";
 import 'dotenv/config'
 
 const port = process.env.PORT || 3000;
@@ -8,7 +8,17 @@ const host = ("RENDER" in process.env) ? `0.0.0.0` : `localhost`;
 
 const app = fastify();
 
-app.register(fastifyCors, { origin: "*" });
+await app.register(fastifyCors, { 
+    origin: "*", 
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: [
+        'content-type',
+        'accept',
+        'content-type',
+        'authorization'
+  ],
+    maxAge: 86400,
+});
 
 app.get("/", async (request, reply) => {
     try {
