@@ -1,15 +1,24 @@
-import { createClient } from "@libsql/client";
+import { Client, createClient } from "@libsql/client";
 import 'dotenv/config'
 
-if(!process.env.TURSO_DATABASE_URL  || !process.env.TURSO_AUTH_TOKEN)
+var db : Client;
+
+if(process.env.DATABASE_URL  && process.env.AUTH_TOKEN)
 {
-    throw new Error("Missing enviroment variables TURSO_DATABASE_URL or TURSO_AUTH_TOKEN. Check README for instructions")
+  db = createClient({
+    url: process.env.DATABASE_URL,
+    authToken: process.env.AUTH_TOKEN,
+  });
+}
+else if(process.env.DATABASE_URL)
+{
+  db = createClient({
+    url: "file:../dev.db",
+  });
+}
+else
+{
+  throw new Error("Database not configured")
 }
 
-const turso = createClient({
-  url: process.env.TURSO_DATABASE_URL,
-  authToken: process.env.TURSO_AUTH_TOKEN,
-});
-
-
-export default turso
+export default db;
