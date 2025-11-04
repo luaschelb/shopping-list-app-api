@@ -1,7 +1,7 @@
 import { fastify } from "fastify";
 import { fastifyCors } from "@fastify/cors";
 import prisma from "./db";
-import MutateItemInterface from './interfaces/MutateItemInterface'
+import MutateItemInterface from './Interfaces/MutateItemInterface'
 import PostItemValidationSchema from './ValidationSchemas/PostItemValidationSchema'
 import 'dotenv/config'
 

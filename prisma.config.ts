@@ -5,7 +5,7 @@ import { PrismaLibSQL } from '@prisma/adapter-libsql'
 // import your .env file
 import 'dotenv/config'
 
-if(!process.env.LIBSQL_DATABASE_URL || process.env.LIBSQL_DATABASE_TOKEN)
+if(!process.env.LIBSQL_DATABASE_URL || !process.env.LIBSQL_DATABASE_TOKEN)
 {
   throw new Error("Please configure LIBSQL_DATABASE_URL and LIBSQL_DATABASE_TOKEN env variables")
 }
