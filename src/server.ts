@@ -1,6 +1,8 @@
 import { fastify } from "fastify";
 import { fastifyCors } from "@fastify/cors";
-import turso from "./db";
+import prisma from "./db";
+import MutateItemInterface from './interfaces/MutateItemInterface'
+import PostItemValidationSchema from './ValidationSchemas/PostItemValidationSchema'
 import 'dotenv/config'
 
 const port = process.env.PORT || 3000;
@@ -24,65 +26,56 @@ app.get("/", async (request, reply) => {
     try {
         return reply.status(200).send({ message: "Hello World" });
     } catch (error) {
+        console.error(error)
         reply.status(500).send({ message: "Internal Server Error" });
     }
 });
 
 app.get("/items", async (request, reply) => {
     try {
-        const itens = await turso.execute("SELECT * FROM items");
-        if(!itens.rows.length)
+        const items = await prisma.items.findMany()
+        if(!items)
         {
             return reply.status(404).send({message: "No Items found"})
         }
-        reply.send(itens.rows)
+        reply.send(items)
     } catch (error) {
+        console.error(error)
         reply.status(500).send({ message: "Internal Server Error" });
     }
 });
 
-interface ItemInterface {
-    name: string,
-    quantity: number
-}
-
-let ItemSchema = {
-    schema: {
-        body: {
-            type: 'object',
-            required: ["name", "quantity"],
-            properties: {
-                name: {type: 'string'},
-                quantity: {type: 'number'}
-            }
-        }
-    }
-}
-
-
-app.post<{Body: ItemInterface}>("/items", ItemSchema ,async (request, reply) => {
+app.post<{Body: MutateItemInterface}>("/items", PostItemValidationSchema ,async (request, reply) => {
     try {
         const { name, quantity } = request.body
-        const itens = await turso.execute("INSERT INTO items (name, quantity) VALUES (?, ?)", [name, quantity]);
+        const itens = await prisma.items.create({
+            data: {
+                name, quantity
+            }
+        })
         reply.status(201).send()
     } catch (error) {
+        console.error(error)
         reply.status(500).send({ message: "Internal Server Error" });
     }
 });
 
 
-app.put<{Body: ItemInterface}>("/items/:id", ItemSchema,async (request, reply) => {
+app.put<{Body: MutateItemInterface}>("/items/:id", PostItemValidationSchema,async (request, reply) => {
     try {
         const params = request.params as { id: number }
         const { name, quantity } = request.body
-        const itens = await turso.execute("SELECT * FROM items where items.id = ?", [params.id]);
-        if(!itens.rows.length)
+        const item = await prisma.items.update({where: {id: Number(params.id)},
+        data: {
+            name, quantity
+        }})
+        if(!item)
         {
             return reply.status(404).send({message: "No Item found"})
         }
-        const update = await turso.execute("UPDATE items SET name=?, quantity=? WHERE items.id = ? ", [name, quantity, params.id])
         reply.send()
     } catch (error) {
+        console.error(error)
         reply.status(500).send({ message: "Internal Server Error" });
     }
 });
@@ -90,13 +83,10 @@ app.put<{Body: ItemInterface}>("/items/:id", ItemSchema,async (request, reply) =
 app.delete("/items/:id", async (request, reply) => {
     try {
         const params = request.params as { id: number }
-        const itens = await turso.execute("DELETE FROM items WHERE items.id = ?", [params.id]);
-        if(!itens.rowsAffected)
-        {
-            return reply.status(404).send({message: "No Item found"})
-        }
+        const itens = await prisma.items.delete({where: {id: Number(params.id)}})
         reply.send()
     } catch (error) {
+        console.error(error)
         reply.status(500).send({ message: "Internal Server Error" });
     }
 })
